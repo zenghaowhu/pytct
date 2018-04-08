@@ -66,23 +66,29 @@ class Stage():
             #delay 1 second for motor moving to (x0,y0.z0)
             time.sleep(2)
         
-            # # scan step by step
-            # self.flag1 = self.flag2 = -1
-            # for self.i in range(0, self.Nz):
-            #     self.MoveRE(self.Zaxis, self.dz)
-            #     self.flag1 = self.flag1 * (-1)
-            #     for self.j in range(0, self.Nx):
-            #         self.MoveRE(self.Xaxis, self.flag1 * self.dx)
-            #         self.flag2 = self.flag2 * (-1)
-            #         for self.k in range(0, self.Ny):
-            #             self.MoveRE(self.Yaxis, self.flag2 * self.dy)
-            #             #print(self.Xaxis.get_status_position(),self.Yaxis.get_status_position(),self.Zaxis.get_status_position())
-            #             print(self.ui.CurrentPosX_2.value(),self.ui.CurrentPosY_2.value(),self.ui.CurrentPosZ_2.value())
-            #             self.timer.timeout.connect(self.UpdateDesiredPos)
-            #             self.timer.start(100)
-            #             #self.UpdateDesiredPos() 
+            # scan step by step
+            self.flag1 = self.flag2 = -1
+            for self.i in range(0, self.Nz):
+                if self.flag == 0:
+                    break
+                self.MoveRE(self.Zaxis, self.dz)
+                self.flag1 = self.flag1 * (-1)
+                for self.j in range(0, self.Nx):
+                    if self.flag == 0:
+                        break
+                    self.MoveRE(self.Xaxis, self.flag1 * self.dx)
+                    self.flag2 = self.flag2 * (-1)
+                    for self.k in range(0, self.Ny):
+                        if self.flag == 0:
+                            break
+                        self.MoveRE(self.Yaxis, self.flag2 * self.dy)
+                        #print(self.Xaxis.get_status_position(),self.Yaxis.get_status_position(),self.Zaxis.get_status_position())
+                        #print(self.ui.CurrentPosX_2.value(),self.ui.CurrentPosY_2.value(),self.ui.CurrentPosZ_2.value())
+                        #self.timer.timeout.connect(self.UpdateDesiredPos)
+                        #self.timer.start(100)
+                        #self.UpdateDesiredPos() 
                         
-
+            '''
             for self.PZ in range(self.z0, self.z0 + ((self.Nz + 1) * self.dz) , self.dz):
                 if self.flag == 0:
                     break
@@ -98,3 +104,4 @@ class Stage():
                         #self.timer.timeout.connect(self.UpdateDesiredPos)
                         #self.timer.start(100)
                         #time.sleep(0.1)
+            '''
