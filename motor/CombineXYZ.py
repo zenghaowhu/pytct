@@ -237,9 +237,11 @@ class MainWidget(QtWidgets.QWidget):
         self.capture_thread.xzero = float(self.ui.xzero.text())
         self.capture_thread.scope = self.scope
         self.capture_thread.start()
+        self.Scan()
 
     def CapturePause(self):
         self.capture_thread.flag = False
+        #self.scope.close_resource()
 
 
 
