@@ -241,6 +241,7 @@ class MainWidget(QtWidgets.QWidget):
 
     def CapturePause(self):
         self.capture_thread.flag = False
+        self.ScanStop()
         #self.scope.close_resource()
 
 
