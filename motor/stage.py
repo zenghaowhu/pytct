@@ -72,7 +72,8 @@ class Stage():
         self.Nx = Np[0]
         self.Ny = Np[1]
         self.Nz = Np[2]
-        
+        self.scan_signal = False
+
         #preprocess the situation when Nx = 0 or Ny = 0 or Nz = 0
         if self.Nx == 0:
             self.dx = 0
@@ -93,11 +94,15 @@ class Stage():
                 if self.flag == 0:
                     break
                 self.MoveRE(self.Zaxis, self.dz)
+                if self.dz != 0:
+                    self.scan_signal = True
                 self.flag1 = self.flag1 * (-1)
                 for self.j in range(0, self.Nx):
                     if self.flag == 0:
                         break
                     self.MoveRE(self.Xaxis, self.flag1 * self.dx)
+                    if self.dx != 0:
+                        self.scan_signal = True
                     print(self.Xaxis.get_status_position(),self.Yaxis.get_status_position(),self.Zaxis.get_status_position())
 
                     self.flag2 = self.flag2 * (-1)
@@ -105,6 +110,8 @@ class Stage():
                         if self.flag == 0:
                             break
                         self.MoveRE(self.Yaxis, self.flag2 * self.dy)
+                        if self.dy != 0:
+                            self.scan_signal = True
                         #time.sleep(1)
                         print(self.Xaxis.get_status_position(),self.Yaxis.get_status_position(),self.Zaxis.get_status_position())
                         #print(self.ui.CurrentPosX_2.value(),self.ui.CurrentPosY_2.value(),self.ui.CurrentPosZ_2.value())

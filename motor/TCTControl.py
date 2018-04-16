@@ -132,12 +132,12 @@ class MainWidget(QtWidgets.QWidget):
             print("\n\n\nError!!!!!!!\n\n\n")
         self.new_thread.start()
     def Scan(self):
-        self.new_thread = thread.ControlThread(self.setdevice)
-        self.new_thread.operation_num = 5
-        self.new_thread.po = [self.ui.x0.value(),self.ui.y0.value(),self.ui.z0.value()]
-        self.new_thread.dp = [self.ui.dx.value(),self.ui.dy.value(),self.ui.dz.value()]
-        self.new_thread.Np = [self.ui.Nx.value(),self.ui.Ny.value(),self.ui.Nz.value()]
-        self.new_thread.start()
+        self.scan_thread = thread.ScanThread(self.setdevice)
+        self.scan_thread.flag = True
+        self.scan_thread.pos_o = [self.ui.x0.value(),self.ui.y0.value(),self.ui.z0.value()]
+        self.scan_thread.dp = [self.ui.dx.value(),self.ui.dy.value(),self.ui.dz.value()]
+        self.scan_thread.Np = [self.ui.Nx.value(),self.ui.Ny.value(),self.ui.Nz.value()]
+        self.scan_thread.start()
 
     def SetMotor(self):
         self.setdevice = numpy.empty(3,dtype=object)
@@ -167,7 +167,7 @@ class MainWidget(QtWidgets.QWidget):
         self.new_thread.start()
 
     def ScanStop(self):
-        self.new_thread.laser_stage.flag = 0
+        self.scan_thread.flag = False
 
 
     
@@ -223,8 +223,16 @@ class MainWidget(QtWidgets.QWidget):
 
 
     def SaveData(self):
+        if self.ui.Frequency_mode.isChecked() == True:
+            self.CaptureMode(False)
+        if self.ui.step_mode.isChecked() == True:
+            self.Scan()
+            self.scan_thread.ScanSignal.connect(lambda:self.CaptureMode(True))
+
+    def CaptureMode(self,mode):
         self.capture_thread = thread.DataCapture()
         self.capture_thread.flag = True
+        self.capture_thread.stepmode_flag = mode
         self.capture_thread.resource = self.ui.Interface.currentText()
         self.capture_thread.folder = self.ui.FolderText.text()
         self.capture_thread.device = self.setdevice
@@ -237,7 +245,6 @@ class MainWidget(QtWidgets.QWidget):
         self.capture_thread.xzero = float(self.ui.xzero.text())
         self.capture_thread.scope = self.scope
         self.capture_thread.start()
-        self.Scan()
 
     def CapturePause(self):
         self.capture_thread.flag = False
