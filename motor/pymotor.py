@@ -91,14 +91,14 @@ class Motor():
         speed_settings = move_settings_t()
         speed_settings.Speed = speed
         speed_settings.uSpeed = step
-        speed_settings.Accel = 1
-        speed_settings.Decel = 1
-        speed_settings.AntiplaySpeed = 1
-        speed_settings.uAntiplaySpeed = 1
-        result = self.lib.set_move_settings(self.device_id,speed_settings)
+        speed_settings.Accel = 1000
+        speed_settings.Decel = 2000
+        speed_settings.AntiplaySpeed = 50
+        speed_settings.uAntiplaySpeed = 0
+        result = self.lib.set_move_settings(self.device_id,byref(speed_settings))
         print("move settings Result:" + repr(result))
         move_settings = move_settings_t()
-        result = self.lib.get_move_settings(self.device_id,move_settings)
+        result = self.lib.get_move_settings(self.device_id,byref(move_settings))
         if result == 0:
             print("move settings:",move_settings.Speed,move_settings.uSpeed,move_settings.Accel,move_settings.Decel)
 
@@ -108,15 +108,20 @@ class Motor():
         result = self.lib.command_homezero(self.device_id)
         log("Result: " + repr(result))
 
+    def zero(self):
+        log("\nzero the position")
+        result = self.lib.command_zero(self.device_id)
+        log("Result: " + repr(result))
+
     def forward(self, distance):      # move forward Deltaposition
         log("\nShifting")
         log(distance)
         dis = ctypes.c_int()
         dis.value = int(distance)
         move_settings = move_settings_t()
-        result = self.lib.get_move_settings(self.device_id,move_settings)
+        result = self.lib.get_move_settings(self.device_id,byref(move_settings))
         if result == 0:
-            print("move settings:",move_settings.Speed,move_settings.uSpeed,move_settings.Accel,move_settings.Decel)
+            print("move settings:",move_settings.Speed,move_settings.uSpeed,move_settings.Accel,move_settings.Decel,move_settings.AntiplaySpeed,move_settings.uAntiplaySpeed)
         result = self.lib.command_movr(self.device_id, dis, 0)
         log("Result: " + repr(result))
 

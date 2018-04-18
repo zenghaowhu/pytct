@@ -35,7 +35,7 @@ class MainWidget(QtWidgets.QWidget):
         self.timer = QtCore.QTimer()
         self.timer.start(500)
         self.SetMotor()
-        #self.SetSpeed()
+        self.SpeedMode()
         self.ui.Interface.addItems(MDO3034Control.ReadInterface())
             
 
@@ -59,6 +59,11 @@ class MainWidget(QtWidgets.QWidget):
         self.ui.ResetPosY.clicked.connect(lambda:self.Home("Y"))
         self.ui.ResetPosZ.clicked.connect(lambda:self.Home("Z"))
 
+        #Zero
+        self.ui.zeroX.clicked.connect(lambda:self.Zero("X"))
+        self.ui.zeroY.clicked.connect(lambda:self.Zero("Y"))
+        self.ui.zeroZ.clicked.connect(lambda:self.Zero("Z"))
+
         #scan
         self.ui.ScanBut.clicked.connect(self.Scan)
 
@@ -70,7 +75,9 @@ class MainWidget(QtWidgets.QWidget):
         self.ui.SetMotor.clicked.connect(self.SetMotor)
 
         #set speed
-        self.ui.Set_Speed.clicked.connect(self.SetSpeed)
+        self.ui.default_speed.toggled.connect(self.SpeedMode)
+        self.ui.setting_speed.toggled.connect(self.SpeedMode)
+        self.ui.Set_Speed.clicked.connect(lambda:self.SetSpeed(False))
 
         #set folder
         self.ui.FolderSet.clicked.connect(self.SetFolder)
@@ -119,6 +126,7 @@ class MainWidget(QtWidgets.QWidget):
         else:
             print("\n\n\nError!!!!!!!\n\n\n")
         self.new_thread.start()
+
     def Home(self,motor):
         self.new_thread = thread.ControlThread(self.setdevice)
         self.new_thread.operation_num = 1
@@ -131,6 +139,21 @@ class MainWidget(QtWidgets.QWidget):
         else:
             print("\n\n\nError!!!!!!!\n\n\n")
         self.new_thread.start()
+
+    def Zero(self,motor):
+        self.new_thread = thread.ControlThread(self.setdevice)
+        self.new_thread.operation_num = 5
+        if motor == "X":
+            self.new_thread.motor = self.new_thread.laser_stage.Xaxis
+        elif motor == "Y":
+            self.new_thread.motor = self.new_thread.laser_stage.Yaxis
+        elif motor == "Z":
+            self.new_thread.motor = self.new_thread.laser_stage.Zaxis
+        else:
+            print("\n\n\nError!!!!!!!\n\n\n")
+        self.new_thread.start()
+
+
     def Scan(self):
         self.scan_thread = thread.ScanThread(self.setdevice)
         self.scan_thread.flag = True
@@ -138,6 +161,7 @@ class MainWidget(QtWidgets.QWidget):
         self.scan_thread.dp = [self.ui.dx.value(),self.ui.dy.value(),self.ui.dz.value()]
         self.scan_thread.Np = [self.ui.Nx.value(),self.ui.Ny.value(),self.ui.Nz.value()]
         self.scan_thread.start()
+        self.scan_thread.wait()
 
     def SetMotor(self):
         self.setdevice = numpy.empty(3,dtype=object)
@@ -145,21 +169,39 @@ class MainWidget(QtWidgets.QWidget):
         self.setdevice[1] = self.device[self.ui.Y_Motor_Num.value()-1]
         self.setdevice[2] = self.device[self.ui.Z_Motor_Num.value()-1]
 
-    def SetSpeed(self):
+    def SetSpeed(self,default):
         self.steps = numpy.empty(3,dtype=int)
         self.speed = numpy.empty(3,dtype=int)
-        self.steps[0] = self.ui.Step_X.value()
-        self.steps[1] = self.ui.Step_Y.value()
-        self.steps[2] = self.ui.Step_Z.value()
-        self.speed[0] = self.ui.Speed_X.value()
-        self.speed[1] = self.ui.Speed_Y.value()
-        self.speed[2] = self.ui.Speed_Z.value()
+        if default:
+            self.steps = [0,0,0]
+            self.speed = [1000,1000,1000]
+        else:
+            self.steps[0] = self.ui.Step_X.value()
+            self.steps[1] = self.ui.Step_Y.value()
+            self.steps[2] = self.ui.Step_Z.value()
+            self.speed[0] = self.ui.Speed_X.value()
+            self.speed[1] = self.ui.Speed_Y.value()
+            self.speed[2] = self.ui.Speed_Z.value()
         self.new_thread = thread.ControlThread(self.setdevice)
         self.new_thread.operation_num = 6
         self.new_thread.step = self.steps
         self.new_thread.speed = self.speed
         self.new_thread.start()
+        self.new_thread.wait()
 
+    def SpeedMode(self):
+        if self.ui.setting_speed.isChecked():
+            self.ui.Set_Speed.setEnabled(True)
+        if self.ui.default_speed.isChecked():
+            self.ui.Set_Speed.setEnabled(False)
+            self.SetSpeed(True)
+            
+            #self.new_thread = thread.ControlThread(self.setdevice)
+            #self.new_thread.operation_num = 6
+            #self.new_thread.step = [0,0,0]
+            #self.new_thread.speed = [1000,1000,1000]
+            #self.new_thread.start()
+            
 
     def Stop(self):
         self.new_thread = thread.ControlThread(self.setdevice)
@@ -245,6 +287,7 @@ class MainWidget(QtWidgets.QWidget):
         self.capture_thread.xzero = float(self.ui.xzero.text())
         self.capture_thread.scope = self.scope
         self.capture_thread.start()
+        self.capture_thread.wait()
 
     def CapturePause(self):
         self.capture_thread.flag = False

@@ -17,8 +17,12 @@ class Stage():
         
 
     def Home(self,motor):
-            if tctEnable:
-                motor.home()
+        if tctEnable:
+            motor.home()
+
+    def Zero(self,motor):
+        if tctEnable:
+            motor.zero()
 
     def Stop(self):
         if tctEnable:

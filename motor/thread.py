@@ -27,6 +27,7 @@ class ControlThread(QtCore.QThread):
     # 2.stop
     # 3.move set position
     # 4.move step
+    # 5.zero
     # 6.set speed
     ############################
     def run(self):
@@ -39,7 +40,7 @@ class ControlThread(QtCore.QThread):
         elif self.operation_num == 4:
             self.laser_stage.MoveRE(self.motor,self.mv)
         elif self.operation_num == 5:
-            self.laser_stage.Scan(self.po,self.dp,self.Np)
+            self.laser_stage.Zero(self.motor)
         elif self.operation_num == 6:
             self.laser_stage.SetSpeed(self.step,self.speed)
         else:
