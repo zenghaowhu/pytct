@@ -116,7 +116,7 @@ class ReadyThread(QtCore.QThread):
         msg = self.scope.testIO()
         self.message = "ocsilloscope information:" + msg
         self.sinOut.emit('open')
-        self.scope.readSet(str(self.channel),str(self.point_number))
+        self.scope.readSet('ch' + str(self.channel),str(self.point_number))
         self.message = "read set complete!"
         self.sinOut.emit('readset')
         self.ymult,self.yzero,self.yoff,self.xincr,self.xzero = self.scope.readOffset()

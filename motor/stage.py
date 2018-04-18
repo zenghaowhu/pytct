@@ -43,8 +43,8 @@ class Stage():
 
 
     def MoveRE(self,motor,movement):
-        UpperLimit = 1000     
-        LowerLimit = -1000    
+        UpperLimit = 10000     
+        LowerLimit = -10000    
         currentPos = motor.get_status_position()
         movePos = currentPos + movement
         if currentPos + movement > UpperLimit:

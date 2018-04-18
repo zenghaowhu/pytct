@@ -24,7 +24,7 @@ class MDO3034C:
         self.my_resource.write('*CLS')
         #self.my_resource.query_delay = 10.0
         message=self.my_resource.query('*IDN?')
-        time.sleep(0.5)
+        time.sleep(1)
         print("ocsilloscope information:" + message)
         return message
 		
