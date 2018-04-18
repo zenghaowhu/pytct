@@ -48,6 +48,7 @@ class ControlThread(QtCore.QThread):
 
 class DataCapture(QtCore.QThread):
     stop_signal = QtCore.pyqtSignal(str)
+    scan_signal = QtCore.pyqtSignal()
     def __init__(self):
         super(DataCapture,self).__init__()
         self.resource = 'ASRL1::INSTR'
@@ -63,7 +64,7 @@ class DataCapture(QtCore.QThread):
         self.stepmode_flag = True
         self.flag = True
         self.scope = None
-
+        self.info = ''
 
     def capture(self):
         filename = self.folder + '/TCT' + datetime.now().isoformat().replace(':','') + '.csv'
@@ -83,12 +84,12 @@ class DataCapture(QtCore.QThread):
             #print("pause##########")
             #self.timer.stop()
             #self.finished()
-
+        self.scan_signal.emit()          #emit scan continue signal
 
     def run(self):
         self.timer = QtCore.QTimer()
         if self.stepmode_flag:
-            self.info = self.scope.testIO()
+            #self.info = self.scope.testIO()
             self.capture()
         else:
             self.timer.start(int(1000/self.frequency))
@@ -137,6 +138,7 @@ class ScanThread(QtCore.QThread):
         self.dp = [1,1,1]
         self.Np = [0,0,0]
         self.flag = False                #stop flag
+        self.continue_flag = True
 
     def scan(self):
         self.x0 = self.pos_o[0] 
@@ -171,7 +173,12 @@ class ScanThread(QtCore.QThread):
                     break
                 self.laser_stage.MoveRE(self.laser_stage.Zaxis, self.dz)
                 if self.dz != 0:
-                    self.CaptureSignal.emit('capture')
+                    self.CaptureSignal.emit('capture')      #one step move complete,emit capture signal
+                    time.sleep(0.1)
+                    while True:
+                        if self.continue_flag:
+                            break
+
                 self.flag1 = self.flag1 * (-1)
                 for self.j in range(0, self.Nx):
                     if self.flag == False:
@@ -180,6 +187,10 @@ class ScanThread(QtCore.QThread):
                     self.laser_stage.MoveRE(self.laser_stage.Xaxis, self.flag1 * self.dx)
                     if self.dx != 0:
                         self.CaptureSignal.emit('capture')
+                        time.sleep(0.1)
+                        while True:
+                            if self.continue_flag:
+                                break
                     print(self.laser_stage.Xaxis.get_status_position(),self.laser_stage.Yaxis.get_status_position(),self.laser_stage.Zaxis.get_status_position())
 
                     self.flag2 = self.flag2 * (-1)
@@ -190,6 +201,10 @@ class ScanThread(QtCore.QThread):
                         self.laser_stage.MoveRE(self.laser_stage.Yaxis, self.flag2 * self.dy)
                         if self.dy != 0:
                             self.CaptureSignal.emit('capture')
+                            time.sleep(0.1)
+                            while True:
+                                if self.continue_flag:
+                                    break
                         print(self.laser_stage.Xaxis.get_status_position(),self.laser_stage.Yaxis.get_status_position(),self.laser_stage.Zaxis.get_status_position())  
 
     def run(self):

@@ -22,7 +22,7 @@ testpass = False
 
 class MainWidget(QtWidgets.QWidget):
     SignalCapture = QtCore.pyqtSignal()
-    #SignalScanContinue = QtCore.pyqtSignal()
+    SignalScanContinue = QtCore.pyqtSignal()
     def __init__(self, parent=None):
         super(MainWidget, self).__init__(parent)
 
@@ -69,6 +69,7 @@ class MainWidget(QtWidgets.QWidget):
 
         #scan
         self.ui.ScanBut.clicked.connect(self.Scan)
+        self.SignalScanContinue.connect(self.ScanContinue)
 
         #Stop
         self.ui.StopBut.clicked.connect(self.Stop)
@@ -165,7 +166,9 @@ class MainWidget(QtWidgets.QWidget):
         self.scan_thread.dp = [self.ui.dx.value(),self.ui.dy.value(),self.ui.dz.value()]
         self.scan_thread.Np = [self.ui.Nx.value(),self.ui.Ny.value(),self.ui.Nz.value()]
         self.scan_thread.start()
-        self.scan_thread.wait()
+
+    def ScanContinue(self):
+        self.scan_thread.continue_flag = True
 
     def SetMotor(self):
         self.setdevice = numpy.empty(3,dtype=object)
@@ -273,7 +276,12 @@ class MainWidget(QtWidgets.QWidget):
             self.CaptureMode(False)
         if self.ui.step_mode.isChecked() == True:
             self.Scan()
-            self.scan_thread.CaptureSignal.connect(self.SignalCapture.emit)
+            self.scan_thread.CaptureSignal.connect(self.StepCapture)
+
+    def StepCapture(self):
+        print("capture\n")
+        self.scan_thread.continue_flag = False             #let scan thread wait
+        self.SignalCapture.emit()
 
     def CaptureMode(self,mode):
         self.capture_thread = thread.DataCapture()
@@ -290,8 +298,10 @@ class MainWidget(QtWidgets.QWidget):
         self.capture_thread.xincr = float(self.ui.xincr.text())
         self.capture_thread.xzero = float(self.ui.xzero.text())
         self.capture_thread.scope = self.scope
+        self.capture_thread.info = self.oscilloscope_info
         self.capture_thread.start()
-        self.capture_thread.wait()
+        self.capture_thread.scan_signal.connect(self.SignalScanContinue.emit)
+        #self.capture_thread.wait()
 
     def CapturePause(self):
         self.capture_thread.flag = False
@@ -318,6 +328,7 @@ class MainWidget(QtWidgets.QWidget):
             self.ui.xzero.setText(str(self.readythread.xzero))
         elif dis_message == "open":
             self.scope = self.readythread.scope
+            self.oscilloscope_info = self.readythread.message
             self.ui.InfoText.append(self.readythread.message)
         else:
             self.ui.InfoText.append(self.readythread.message)
