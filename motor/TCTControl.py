@@ -21,9 +21,12 @@ testpass = False
 
 
 class MainWidget(QtWidgets.QWidget):
+    SignalCapture = QtCore.pyqtSignal()
+    #SignalScanContinue = QtCore.pyqtSignal()
     def __init__(self, parent=None):
         super(MainWidget, self).__init__(parent)
 
+        
         ################################################
         #initialize the device information,search usable device
         self.EmumDevice()
@@ -84,6 +87,7 @@ class MainWidget(QtWidgets.QWidget):
 
         #capture data
         self.ui.CaptureBut.clicked.connect(self.SaveData)
+        self.SignalCapture.connect(lambda:self.CaptureMode(True))
 
         #capture pause
         self.ui.CapturePause.clicked.connect(self.CapturePause)
@@ -269,7 +273,7 @@ class MainWidget(QtWidgets.QWidget):
             self.CaptureMode(False)
         if self.ui.step_mode.isChecked() == True:
             self.Scan()
-            self.scan_thread.ScanSignal.connect(lambda:self.CaptureMode(True))
+            self.scan_thread.CaptureSignal.connect(self.SignalCapture.emit)
 
     def CaptureMode(self,mode):
         self.capture_thread = thread.DataCapture()

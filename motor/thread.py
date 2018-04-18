@@ -129,7 +129,7 @@ class ReadyThread(QtCore.QThread):
 
 
 class ScanThread(QtCore.QThread):
-    ScanSignal = QtCore.pyqtSignal(str)
+    CaptureSignal = QtCore.pyqtSignal(str)
     def __init__(self,device):
         super(ScanThread,self).__init__()
         self.laser_stage = stage.Stage(device)
@@ -171,7 +171,7 @@ class ScanThread(QtCore.QThread):
                     break
                 self.laser_stage.MoveRE(self.laser_stage.Zaxis, self.dz)
                 if self.dz != 0:
-                    self.ScanSignal.emit('capture')
+                    self.CaptureSignal.emit('capture')
                 self.flag1 = self.flag1 * (-1)
                 for self.j in range(0, self.Nx):
                     if self.flag == False:
@@ -179,7 +179,7 @@ class ScanThread(QtCore.QThread):
                         break
                     self.laser_stage.MoveRE(self.laser_stage.Xaxis, self.flag1 * self.dx)
                     if self.dx != 0:
-                        self.ScanSignal.emit('capture')
+                        self.CaptureSignal.emit('capture')
                     print(self.laser_stage.Xaxis.get_status_position(),self.laser_stage.Yaxis.get_status_position(),self.laser_stage.Zaxis.get_status_position())
 
                     self.flag2 = self.flag2 * (-1)
@@ -189,7 +189,7 @@ class ScanThread(QtCore.QThread):
                             break
                         self.laser_stage.MoveRE(self.laser_stage.Yaxis, self.flag2 * self.dy)
                         if self.dy != 0:
-                            self.ScanSignal.emit('capture')
+                            self.CaptureSignal.emit('capture')
                         print(self.laser_stage.Xaxis.get_status_position(),self.laser_stage.Yaxis.get_status_position(),self.laser_stage.Zaxis.get_status_position())  
 
     def run(self):
