@@ -89,6 +89,7 @@ class DataCapture(QtCore.QThread):
     def run(self):
         self.timer = QtCore.QTimer()
         if self.stepmode_flag:
+            time.sleep(0.1)
             #self.info = self.scope.testIO()
             self.capture()
         else:
