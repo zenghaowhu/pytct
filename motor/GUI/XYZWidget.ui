@@ -45,7 +45,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -345,6 +345,9 @@
        <property name="buttonSymbols">
         <enum>QAbstractSpinBox::UpDownArrows</enum>
        </property>
+       <property name="maximum">
+        <number>500</number>
+       </property>
       </widget>
       <widget class="QSpinBox" name="StepMoveY">
        <property name="geometry">
@@ -355,6 +358,9 @@
          <height>31</height>
         </rect>
        </property>
+       <property name="maximum">
+        <number>500</number>
+       </property>
       </widget>
       <widget class="QSpinBox" name="StepMoveZ">
        <property name="geometry">
@@ -364,6 +370,9 @@
          <width>71</width>
          <height>31</height>
         </rect>
+       </property>
+       <property name="maximum">
+        <number>500</number>
        </property>
       </widget>
       <widget class="QLabel" name="label">
@@ -750,6 +759,9 @@
          <height>31</height>
         </rect>
        </property>
+       <property name="minimum">
+        <number>-100000</number>
+       </property>
        <property name="maximum">
         <number>100000</number>
        </property>
@@ -811,7 +823,7 @@
         </size>
        </property>
        <property name="minimum">
-        <number>0</number>
+        <number>-100000</number>
        </property>
        <property name="maximum">
         <number>100000</number>
@@ -854,6 +866,9 @@
          <width>91</width>
          <height>31</height>
         </rect>
+       </property>
+       <property name="minimum">
+        <number>-100000</number>
        </property>
        <property name="maximum">
         <number>100000</number>
